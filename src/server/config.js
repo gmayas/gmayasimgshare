@@ -10,8 +10,8 @@ const routes = require('../routes/indes.routes')
 module.exports = app => {
     // Settings
     app.set('port', process.env.PORT || 3000);
-    app.set('views', path.join(__dirname, 'views'));
-    app.set('.hbs', exphbs.engine({
+    app.set('views', path.join(__dirname, '../views'));
+    app.engine('.hbs', exphbs.engine({
         defaulLayout: 'main',
         partialsDir: path.join(app.get('views'), 'partials'),
         layoutsDir: path.join(app.get('views'), 'layouts'),
