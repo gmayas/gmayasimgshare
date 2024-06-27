@@ -21,21 +21,17 @@ module.exports = app => {
     app.set('view engine', '.hbs');
     // Middleware
     app.use(morgan('dev'));
-    app.use(multer({
-        dest: path.join(__dirname, '../public/upload/temp')})
-        .single('image'));
+    app.use(multer({ dest: path.join(__dirname, '../public/upload/temp') }).single('image')); // Uploads Settings
     app.use(express.urlencoded({ extended: false }));
-    app.use(express.json()); 
+    app.use(express.json());
     // Routes
     routes(app);
     // Static files
-    app.use('/public',express.static(path.join(__dirname, '../public')))
+    app.use('/public', express.static(path.join(__dirname, '../public')))
     // Error Handlers
-    if (app.get('env') === 'development'){
+    if (app.get('env') === 'development') {
         app.use(errorHandler)
     }
-
-
-
+    //
     return app;
 }
