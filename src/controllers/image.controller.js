@@ -42,13 +42,14 @@ const saveImg = async (req, res) => {
             if (matchExt.some(e => e === ext)) {
                 await fse.rename(imageTempPath, targetPath);
                 const newImg = new Image({
+                    uniqueId: nameFile, 
                     title: req.body.title,
                     filename: `${nameFile}${ext}`,
-                    description: req.body.description,
+                    description: req.body.description,             
                 });
-                const imgSave = await newImg.save()
+                console.log("newImg: ", newImg) 
+                const imgSave = await newImg.save();
                 res.status(200).json({ 'message': 'Image saved successfully' }); 
-                //res.redirect('/images')
             } else {
                await fse.unlink(imageTempPath);
                res.status(500).json({ 'error': 'Image not found' });

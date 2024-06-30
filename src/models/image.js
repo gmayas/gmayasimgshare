@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const path = require('path');
-
+const opts = { toJSON: { virtuals: true } };
 const imgSchema = new Schema({
+    uniqueId: { type: String }, 
     title: { type: String },
     description: { type: String },
     filename: { type: String },
@@ -10,12 +11,5 @@ const imgSchema = new Schema({
     likes: { type: Number, default: 0 },
     timestamp: { type: Date, default: Date.now }
 });
-
-imgSchema.virtual('uniqueId')
-    .get(() => {
-        return this.filename.replace(
-            path.extname(this.filename, "")
-        );
-    });
 
 module.exports = mongoose.model('Image', imgSchema);
