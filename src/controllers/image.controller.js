@@ -4,13 +4,21 @@ const { randonName } = require('../helpers/libs');
 const { Image } = require('../models/');
 const imageCtrl = {};
 
-imageCtrl.getImgId = (req, res) => {
-    res.send('Image get page');
+imageCtrl.getImgId = async (req, res) => {
+    try {
+        const image = await Image.findOne({uniqueId: req.params.image_id})
+        .lean({ virtuals: true })
+        console.log('Image: ', image);
+        res.render('image', { image });
+    }
+    catch (e) {
+        console.log('erros: ', e);
+    }
 };
 
 imageCtrl.createImg = async (req, res) => {
     try {
-      await saveImg(req, res);
+        await saveImg(req, res);
     }
     catch (e) {
         console.log('erros: ', e);
@@ -31,8 +39,8 @@ imageCtrl.createCmt = (req, res) => {
 const saveImg = async (req, res) => {
     try {
         const nameFile = randonName();
-        const findResult = await Image.find({ fileName: nameFile});
-        if ( findResult.length > 0 ) {
+        const findResult = await Image.find({ fileName: nameFile });
+        if (findResult.length > 0) {
             await saveImg(req, res);
         } else {
             const imageTempPath = req.file.path;
@@ -42,19 +50,19 @@ const saveImg = async (req, res) => {
             if (matchExt.some(e => e === ext)) {
                 await fse.rename(imageTempPath, targetPath);
                 const newImg = new Image({
-                    uniqueId: nameFile, 
+                    uniqueId: nameFile,
                     title: req.body.title,
                     filename: `${nameFile}${ext}`,
-                    description: req.body.description,             
+                    description: req.body.description,
                 });
-                console.log("newImg: ", newImg) 
+                console.log("newImg: ", newImg)
                 const imgSave = await newImg.save();
-                res.status(200).json({ 'message': 'Image saved successfully' }); 
+                res.redirect(`/images/${nameFile}`);
+                //res.status(200).json({ 'message': 'Image saved successfully' });
             } else {
-               await fse.unlink(imageTempPath);
-               res.status(500).json({ 'error': 'Image not found' });
+                await fse.unlink(imageTempPath);
+                res.status(500).json({ 'error': 'Image not found' });
             };
-            
         };
     }
     catch (e) {
