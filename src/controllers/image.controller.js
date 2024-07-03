@@ -1,13 +1,14 @@
 const path = require('path');
 const fse = require('fs-extra');
+const md5 = require('md5');
 const { randonName } = require('../helpers/libs');
-const { Image } = require('../models/');
+const { Image, Comment } = require('../models/');
 const imageCtrl = {};
 
 imageCtrl.getImgId = async (req, res) => {
     try {
-        const image = await Image.findOne({uniqueId: req.params.image_id})
-        .lean({ virtuals: true })
+        const image = await Image.findOne({ uniqueId: req.params.image_id })
+            .lean({ virtuals: true })
         console.log('Image: ', image);
         res.render('image', { image });
     }
@@ -32,8 +33,13 @@ imageCtrl.removeImg = (req, res) => {
 imageCtrl.createLike = (req, res) => {
     res.send('Like image post page');
 };
-imageCtrl.createCmt = (req, res) => {
-    res.send('Comment image post page');
+imageCtrl.createCmt = async (req, res) => {
+    try {
+        await saveCmt(req, res);
+    }
+    catch (e) {
+        console.log('erros: ', e);
+    }
 };
 
 const saveImg = async (req, res) => {
@@ -63,6 +69,26 @@ const saveImg = async (req, res) => {
                 await fse.unlink(imageTempPath);
                 res.status(500).json({ 'error': 'Image not found' });
             };
+        };
+    }
+    catch (e) {
+        console.log('error: ', e);
+    };
+}
+
+const saveCmt = async (req, res) => {
+    try {
+        const image_id = req.params.image_id;
+        const image = await Image.findOne({ uniqueId: image_id })
+            .lean({ virtuals: true });
+        if (image) {
+            const body = req.body
+            const newCmt = new Comment(body);
+            newCmt.gravatar = md5(newCmt.email);
+            newCmt.image_id = image._id;
+            const cmtSave = await newCmt.save();
+            console.log("cmtSave: ", cmtSave)
+            res.redirect(`/images/${image_id}`);
         };
     }
     catch (e) {

@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const path = require('path');
-const opts = { toJSON: { virtuals: true } };
 const imgSchema = new Schema({
     uniqueId: { type: String }, 
     title: { type: String },
