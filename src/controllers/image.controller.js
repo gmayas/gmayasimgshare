@@ -7,10 +7,20 @@ const imageCtrl = {};
 
 imageCtrl.getImgId = async (req, res) => {
     try {
-        const image = await Image.findOne({ uniqueId: req.params.image_id })
-            .lean({ virtuals: true })
-        console.log('Image: ', image);
-        res.render('image', { image });
+        const image_id = req.params.image_id;
+        const image = await Image.findOneAndUpdate(
+            { uniqueId: image_id },
+            { $inc: { views: 1 } }
+        ).lean({ virtuals: true })
+        if (image) {
+            image.views += 1;
+            console.log('Image: ', image);
+            const comments = await getCmtId(image._id);
+            const viewModel = { image , comments };
+            res.render('image',  viewModel );
+        } else {
+            res.redirect('/');
+        };
     }
     catch (e) {
         console.log('erros: ', e);
@@ -30,15 +40,22 @@ imageCtrl.removeImg = (req, res) => {
     res.send('Image post page');
 };
 
-imageCtrl.createLike = (req, res) => {
-    res.send('Like image post page');
+imageCtrl.createLike = async (req, res) => {
+    try {
+        const image = await saveLike(req, res);
+        console.log('createLike: ', image);
+        res.json({ likes: image.likes});
+    }
+    catch (e) {
+        console.log('error: ', e);
+    }
 };
 imageCtrl.createCmt = async (req, res) => {
     try {
         await saveCmt(req, res);
     }
     catch (e) {
-        console.log('erros: ', e);
+        console.log('error: ', e);
     }
 };
 
@@ -64,7 +81,6 @@ const saveImg = async (req, res) => {
                 console.log("newImg: ", newImg)
                 const imgSave = await newImg.save();
                 res.redirect(`/images/${nameFile}`);
-                //res.status(200).json({ 'message': 'Image saved successfully' });
             } else {
                 await fse.unlink(imageTempPath);
                 res.status(500).json({ 'error': 'Image not found' });
@@ -89,10 +105,43 @@ const saveCmt = async (req, res) => {
             const cmtSave = await newCmt.save();
             console.log("cmtSave: ", cmtSave)
             res.redirect(`/images/${image_id}`);
+        } else {
+            res.redirect('/');
         };
     }
     catch (e) {
         console.log('error: ', e);
+    };
+}
+
+const getCmtId = async (image_id) => {
+    try {
+        const cmntId = await Comment.find({ image_id })
+            .lean({ virtuals: true });
+        return cmntId
+    }
+    catch (e) {
+        console.log('error: ', e);
+    };
+};
+
+const saveLike = async (req, res) => {
+    try {
+        const image_id = req.params.image_id;
+        const image = await Image.findOneAndUpdate(
+            { uniqueId: image_id },
+            { $inc: { likes: 1 } }
+        ).lean({ virtuals: true })
+        if (image) {
+            image.likes += 1;
+            return image;
+        } else {
+            res.redirect('/');
+        };
+    }
+    catch (e) {
+        console.log('error: ', e);
+        return {}
     };
 }
 
