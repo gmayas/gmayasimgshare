@@ -16,8 +16,8 @@ imageCtrl.getImgId = async (req, res) => {
             image.views += 1;
             console.log('Image: ', image);
             const comments = await getCmtId(image._id);
-            const viewModel = { image , comments };
-            res.render('image',  viewModel );
+            const viewModel = { image, comments };
+            res.render('image', viewModel);
         } else {
             res.redirect('/');
         };
@@ -36,15 +36,22 @@ imageCtrl.createImg = async (req, res) => {
     }
 };
 
-imageCtrl.removeImg = (req, res) => {
-    res.send('Image post page');
+imageCtrl.removeImg = async (req, res) => {
+    try {
+        const image = await removeImg(req, res);
+        console.log('removeImg: ', image);
+        res.json(image);
+    }
+    catch (e) {
+        console.log('error: ', e);
+    }
 };
 
 imageCtrl.createLike = async (req, res) => {
     try {
         const image = await saveLike(req, res);
         console.log('createLike: ', image);
-        res.json({ likes: image.likes});
+        res.json({ likes: image.likes });
     }
     catch (e) {
         console.log('error: ', e);
@@ -89,6 +96,29 @@ const saveImg = async (req, res) => {
     }
     catch (e) {
         console.log('error: ', e);
+    };
+}
+
+const removeImg = async (req, res) => {
+    try {
+        const image_id = req.params.image_id;
+        const image = await Image.findOne({ uniqueId: image_id })
+            .lean({ virtuals: true })
+        if (image) {
+            const targetPath = path.resolve(`src/public/upload/${image.filename}`);
+            const delComment = await Comment.deleteOne( {image_id: image._id});
+            console.log('delComment:', delComment);
+            const delImg = await Image.deleteOne( {_id: image._id});
+            console.log('delImg:', delImg);
+            await fse.unlink(targetPath)
+            return true;
+        } else {
+            return false;
+        };
+    }
+    catch (e) {
+        console.log('error: ', e);
+        return false;        
     };
 }
 
