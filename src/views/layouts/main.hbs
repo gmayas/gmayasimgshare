@@ -22,12 +22,9 @@
             <div class="collapse navbar-collapse" id="navbarColor01">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#/">Home
+                        <a class="nav-link" href="/">Home
                             <span class="visually-hidden">(current)</span>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#/users">Users</a>
                     </li>
                 </ul>
             </div>
@@ -39,12 +36,14 @@
                 {{{ body }}}
             </div>
             <div class="col-md-4">
-
+                {{> stats }}
+                {{>popular}}
+                {{>comments}}
             </div>
         </div>
     </div>
     <footer>
-        <div class="footer-copyright text-center text-body bg-black mt-3">© 2024 Copyright:
+        <div class="footer-copyright text-center text-body bg-black mt-3">© {{getCurrentYear}} Copyright:
             <a> GMayaS C:\>Desarrollo en Sistemas.</a>
         </div>
     </footer>
@@ -53,4 +52,5 @@
     crossorigin="anonymous"></script>
 <script type="module" src="/public/css/bootstrap.js"></script>
 <script type="module" src="/public/js/scripts.js"></script>
+
 </html>

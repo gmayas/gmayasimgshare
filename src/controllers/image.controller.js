@@ -3,6 +3,7 @@ const fse = require('fs-extra');
 const md5 = require('md5');
 const { randonName } = require('../helpers/libs');
 const { Image, Comment } = require('../models/');
+const sidebar = require('../helpers/sidebar')
 const imageCtrl = {};
 
 imageCtrl.getImgId = async (req, res) => {
@@ -16,7 +17,8 @@ imageCtrl.getImgId = async (req, res) => {
             image.views += 1;
             console.log('Image: ', image);
             const comments = await getCmtId(image._id);
-            const viewModel = { image, comments };
+            let  viewModel = { image, comments };
+            viewModel = await sidebar(viewModel);
             res.render('image', viewModel);
         } else {
             res.redirect('/');

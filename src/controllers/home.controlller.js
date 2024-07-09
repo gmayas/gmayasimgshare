@@ -1,11 +1,18 @@
-const homeCtrl = {};
+const slidebar = require('../helpers/sidebar');
 const { Image } = require('../models');
+const homeCtrl = {};
 
 homeCtrl.index = async (req, res) => {
-    let images = await Image.find()
-        .sort({ timestamp: -1 })
-        .lean({ virtuals: true })
-    res.render('index', { images });
+    try {
+        let images = await Image.find()
+            .sort({ timestamp: -1 })
+            .lean({ virtuals: true })
+        let viewModel = { images };
+        viewModel = await slidebar(viewModel);
+        res.render('index', viewModel);
+    } catch (e) {
+        next(e);
+    };
 };
 
 module.exports = homeCtrl;
