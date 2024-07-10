@@ -108,7 +108,7 @@ const removeImg = async (req, res) => {
             .lean({ virtuals: true })
         if (image) {
             const targetPath = path.resolve(`src/public/upload/${image.filename}`);
-            const delComment = await Comment.deleteOne( {image_id: image._id});
+            const delComment = await Comment.deleteMany( {image_id: image._id});
             console.log('delComment:', delComment);
             const delImg = await Image.deleteOne( {_id: image._id});
             console.log('delImg:', delImg);
